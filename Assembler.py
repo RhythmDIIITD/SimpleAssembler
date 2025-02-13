@@ -1,11 +1,14 @@
+import re
+
 def readfile(file_path):
     list = []
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         for line in file:
-            words = line.strip().replace(",", " ").split()
+            words = re.sub(r"\((\w+)\)", r" \1 ", line.strip().replace(",", " ")).split()
             list.append(words)
     
     return list
+
 
 def labelmaker(list):
     labels = {}
@@ -28,23 +31,15 @@ Dictionary_of_instruction = {
     },
     "I-type": {
         "addi": {"func3": "000", "opcode": "0010011"},
-        "slti": {"func3": "010", "opcode": "0010011"},
-        "ori": {"func3": "110", "opcode": "0010011"},
-        "andi": {"func3": "111", "opcode": "0010011"},
-        "lb": {"func3": "000", "opcode": "0000011"},
-        "lh": {"func3": "001", "opcode": "0000011"},
-        "lw": {"func3": "010", "opcode": "0000011"}
+        "lw": {"func3": "010", "opcode": "0000011"},
+        "jalr": {"func3": "000", "opcode": "1100111"}
     },
     "S-type": {
-        "sb": {"func3": "000", "opcode": "0100011"},
-        "sh": {"func3": "001", "opcode": "0100011"},
-        "sw": {"func3": "010", "opcode": "0100011"}
+        "sw": {"func3": "010", "opcode": "0100011"},
     },
     "B-type": {
         "beq": {"func3": "000", "opcode": "1100011"},
-        "bne": {"func3": "001", "opcode": "1100011"},
-        "blt": {"func3": "100", "opcode": "1100011"},
-        "bge": {"func3": "101", "opcode": "1100011"}
+        "bne": {"func3": "001", "opcode": "1100011"}
     },
     "J-type": {
         "jal": {"opcode": "1101111"}
@@ -86,13 +81,122 @@ Register_dictionary = {
     "x31": "11111", "t6": "11111"
 }
 
+def decimaltobinary(number):
+    number = int(number)
+    if number<0:
+        binary = format((1<<12)+number,"012b")
+    else:
+        binary = format(number, "012b")
+    return binary
+
+def type_recognition(line):
+    
+
+    strippedstring = ""
+    for ch in line[0]:
+        if ch.isalpha():
+            strippedstring = strippedstring +ch
+
+
+    if strippedstring in Dictionary_of_instruction["R-type"]:
+        print(binary_r(line))
+    elif strippedstring in Dictionary_of_instruction["I-type"]:
+        if strippedstring=="lw":
+            print(binary_i_normal(line))
+        else:
+            print(binary_i_weird(line))
+    elif strippedstring in Dictionary_of_instruction["S-type"]:
+        print(binary_s(line))
+    elif strippedstring in Dictionary_of_instruction["B-type"]:
+        print(binary_b(line))
+    elif strippedstring in Dictionary_of_instruction["J-type"]:
+        print("J-type")
+    elif ":" in strippedstring:
+        print("label")
+    else:
+        print("error")
+        
+    return
+
+def binary_r(line):
+    string = ""
+    string = string + Dictionary_of_instruction["R-type"][line[0]]["func7"]
+    string = string + Register_dictionary[line[3]]
+    string = string + Register_dictionary[line[2]]
+    string = string + Dictionary_of_instruction["R-type"][line[0]]["func3"]
+    string = string + Register_dictionary[line[1]]
+    string = string + Dictionary_of_instruction["R-type"][line[0]]["opcode"]
+    return string
+
+def binary_i_normal(line):
+    string = ""
+    string = string + decimaltobinary(line[2])
+    string = string + Register_dictionary[line[3]]
+    string = string + Dictionary_of_instruction["I-type"][line[0]]["func3"]
+    string = string + Register_dictionary[line[1]]
+    string = string + Dictionary_of_instruction["I-type"][line[0]]["opcode"]
+    return string
+
+def binary_i_weird(line):
+    string = ""
+    string = string + decimaltobinary(line[3])
+    string = string + Register_dictionary[line[2]]
+    string = string + Dictionary_of_instruction["I-type"][line[0]]["func3"]
+    string = string + Register_dictionary[line[1]]
+    string = string + Dictionary_of_instruction["I-type"][line[0]]["opcode"]
+    return string
+
+def binary_s(line):
+    string = ""
+    imm = decimaltobinary(line[2])
+    string = string + imm[0:7]
+    string = string + Register_dictionary[line[1]]
+    string = string + Register_dictionary[line[3]]
+    string = string + Dictionary_of_instruction["S-type"][line[0]]["func3"]
+    string = string + imm[7:12]
+    string = string + Dictionary_of_instruction["S-type"][line[0]]["opcode"]
+    return string
+
+def binary_b(line):
+    string = ""
+    imm = decimaltobinary(line[3])
+    string = string + imm[0] + imm[2:8]
+    string = string + Register_dictionary[line[2]]
+    string = string + Register_dictionary[line[1]]
+    string = string + Dictionary_of_instruction["B-type"][line[0]]["func3"]
+    string = string + imm[8:12] + imm[1]
+    string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
+    return string
+
+def binary_j(line):
+    string = ""
+    imm = Dictionary_of_instruction["J-type"][line[0]]["imm"]
+    string = string + imm[0]
+    string = string + imm[10:20]
+    string = string + imm[9]
+    string = string + imm[1:9]
+    string = string + Register_dictionary[line[1]]
+    string = string + Dictionary_of_instruction["J-type"][line[0]]["opcode"]
+    return string
+
+
+def label(line):
+    string = ""
+    return string
+
+def error(line):
+    string = ""
+    return string
 
 
 
 
-file_path = "Ex_test_6.txt"
-list = readfile("Ex_test_6.txt")
+
+
+file_path = "Ex_test_5.txt"
+list = readfile(file_path)
 labels = labelmaker(list)
 print(list)
 print(labels)
-
+for line in list:
+    type_recognition(line)
