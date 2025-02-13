@@ -89,35 +89,40 @@ def decimaltobinary(number):
         binary = format(number, "012b")
     return binary
 
-def type_recognition(line):
-    
-
+def decimaltobinaryforb(number):
+    number = int(number)
+    if number<0:
+        binary = format((1<<13)+number,"013b")
+    else:
+        binary = format(number, "013b")
+    return binary
+def type_recognition(line,pc):
     strippedstring = ""
     for ch in line[0]:
         if ch.isalpha():
-            strippedstring = strippedstring +ch
-
+            strippedstring = strippedstring + ch
 
     if strippedstring in Dictionary_of_instruction["R-type"]:
-        print(binary_r(line))
+        return binary_r(line)
     elif strippedstring in Dictionary_of_instruction["I-type"]:
-        if strippedstring=="lw":
-            print(binary_i_normal(line))
+        if strippedstring == "lw":
+            return binary_i_normal(line)
         else:
-            print(binary_i_weird(line))
+            return binary_i_weird(line)
     elif strippedstring in Dictionary_of_instruction["S-type"]:
-        print(binary_s(line))
+        return binary_s(line)
     elif strippedstring in Dictionary_of_instruction["B-type"]:
-        print(binary_b(line))
+        return binary_b(line, pc)
     elif strippedstring in Dictionary_of_instruction["J-type"]:
-        print("J-type")
+        return binary_j(line, pc)
     elif ":" in strippedstring:
-        print("label")
+        return "label"
     else:
-        print("error")
-        
-    return
+        return "error"
 
+
+
+        
 def binary_r(line):
     string = ""
     string = string + Dictionary_of_instruction["R-type"][line[0]]["func7"]
@@ -157,9 +162,14 @@ def binary_s(line):
     string = string + Dictionary_of_instruction["S-type"][line[0]]["opcode"]
     return string
 
-def binary_b(line):
+def binary_b(line,pc):
+    if (line[3]+":") in labels:
+        target_pc = labels[(line[3]+":")]
+        current_pc = pc
+
+        line[3] = target_pc - (current_pc +1)
     string = ""
-    imm = decimaltobinary(line[3])
+    imm = decimaltobinaryforb(line[3])
     string = string + imm[0] + imm[2:8]
     string = string + Register_dictionary[line[2]]
     string = string + Register_dictionary[line[1]]
@@ -168,21 +178,39 @@ def binary_b(line):
     string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
     return string
 
-def binary_j(line):
+def decimaltobinaryforj(number):
+    number = int(number)
+    if number<0:
+        binary = format((1<<21)+number,"021b")
+    else:
+        binary = format(number, "021b")
+    return binary
+
+
+def binary_j(line,pc):
+    if (line[2]+":") in labels:
+        target_pc = labels[(line[2]+":")]
+        current_pc = pc
+
+        line[2] = target_pc - ( current_pc +1)
     string = ""
-    imm = Dictionary_of_instruction["J-type"][line[0]]["imm"]
-    string = string + imm[0]
-    string = string + imm[10:20]
-    string = string + imm[9]
-    string = string + imm[1:9]
+    
+    imm = decimaltobinaryforj(line[2])
+    string = string + imm[0]  # imm[20]
+    string = string + imm[10:20]  # imm[10:1]
+    string = string + imm[9]  # imm[11]
+    string = string + imm[1:9]  
     string = string + Register_dictionary[line[1]]
     string = string + Dictionary_of_instruction["J-type"][line[0]]["opcode"]
     return string
 
 
-def label(line):
-    string = ""
-    return string
+def labelprocessor(list):
+    for line in list:
+        if line[0] in labels:
+            line.remove(line[0])
+    return list
+
 
 def error(line):
     string = ""
@@ -193,10 +221,16 @@ def error(line):
 
 
 
-file_path = "Ex_test_5.txt"
+file_path = "Ex_test_6.txt"
 list = readfile(file_path)
 labels = labelmaker(list)
 print(list)
+list = labelprocessor(list)
+
+print(list)
 print(labels)
+
+pc = 0
 for line in list:
-    type_recognition(line)
+    print(type_recognition(line,pc))
+    pc = pc+1
