@@ -4,8 +4,9 @@ def readfile(file_path):
     list = []
     with open(file_path, "r") as file:
         for line in file:
-            words = re.sub(r"\((\w+)\)", r" \1 ", line.strip().replace(",", " ")).split()
-            list.append(words)
+            if line.strip():
+                words = re.sub(r"\((\w+)\)", r" \1 ", line.strip().replace(",", " ")).split()
+                list.append(words)
     
     return list
 
@@ -13,12 +14,13 @@ def readfile(file_path):
 def labelmaker(list):
     labels = {}
     pc = 0
-    for i in range(0,len(list)):
-        if ":" in list[i][0]:
+    for i in range(len(list)):
+        if len(list[i])>0 and ":" in list[i][0]:
             labels[list[i][0]] = pc
-        pc = pc+1
+        pc = pc+ 1
 
     return labels
+
 
 Dictionary_of_instruction = {
     "R-type": {
@@ -118,6 +120,7 @@ def type_recognition(line,pc):
     elif ":" in strippedstring:
         return "label"
     else:
+        
         return "error"
 
 
@@ -196,9 +199,9 @@ def binary_j(line,pc):
     string = ""
     
     imm = decimaltobinaryforj(line[2])
-    string = string + imm[0]  # imm[20]
-    string = string + imm[10:20]  # imm[10:1]
-    string = string + imm[9]  # imm[11]
+    string = string + imm[0] 
+    string = string + imm[10:20] 
+    string = string + imm[9]
     string = string + imm[1:9]  
     string = string + Register_dictionary[line[1]]
     string = string + Dictionary_of_instruction["J-type"][line[0]]["opcode"]
@@ -207,21 +210,76 @@ def binary_j(line,pc):
 
 def labelprocessor(list):
     for line in list:
-        if line[0] in labels:
+        if len(line)>0 and line[0] in labels:
             line.remove(line[0])
     return list
 
 
 def error(line):
     string = ""
+
     return string
 
+def virtualhaultcheck(list):
+    if list[-1]==['beq', 'zero', 'zero', '0']:
+        return 0
+    else:
+        string = "Error: Last Line is not Virtual Hault\nErrorLocation: Line "
+        return string
+    
+def instructionnameerror(list):
+    for line in list:
+        strippedstring = ""
+        for ch in line[0]:
+            if ch.isalpha():
+                strippedstring = strippedstring + ch
+
+        if strippedstring in Dictionary_of_instruction["R-type"]:
+            if line[1] not in Register_dictionary or line[2] not in Register_dictionary or line[3] not in Register_dictionary:
+                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                return string
+            else:
+                continue
+        elif strippedstring in Dictionary_of_instruction["I-type"]:
+            if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
+                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                return string
+            else:
+                continue
+
+
+        elif strippedstring in Dictionary_of_instruction["S-type"]:
+            if line[1] not in Register_dictionary or line[3] not in Register_dictionary:
+                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                return string
+            else:
+                continue
+        elif strippedstring in Dictionary_of_instruction["B-type"]:
+            if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
+                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                return string
+            else:
+                continue
+        elif strippedstring in Dictionary_of_instruction["J-type"]:
+            if line[1] not in Register_dictionary:
+                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                return string
+            else:
+                continue
+
+        elif ":" in strippedstring:
+            continue
+        else:
+            string = "Error: Instruction Name not found in Instruction Set\nError Location: Line number " + str(list.index(line)+1)
+            return string
+    return 0
 
 
 
 
 
-file_path = "Ex_test_6.txt"
+
+file_path = "Ex_test_3.txt"
 list = readfile(file_path)
 labels = labelmaker(list)
 print(list)
@@ -230,7 +288,19 @@ list = labelprocessor(list)
 print(list)
 print(labels)
 
-pc = 0
-for line in list:
-    print(type_recognition(line,pc))
-    pc = pc+1
+
+error_message = instructionnameerror(list)
+
+if error_message != 0:
+    print(error_message)
+else:
+    
+    halt_error_message = virtualhaultcheck(list)
+    
+    if halt_error_message == 0:
+        pc = 0
+        for line in list:
+            print(type_recognition(line, pc))
+            pc += 1
+    else:
+        print(halt_error_message, len(list))
