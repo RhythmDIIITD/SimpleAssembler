@@ -1,14 +1,17 @@
 import re
 
 def readfile(file_path):
-    list = []
+    lst = []
     with open(file_path, "r") as file:
         for line in file:
             if line.strip():
-                words = re.sub(r"\((\w+)\)", r" \1 ", line.strip().replace(",", " ")).split()
-                list.append(words)
+                words = re.sub(r"\((\w+)\)", r" \1 ", line.strip().replace(",", " "))
+                words = re.sub(r"(\w+:)(\w+)", r"\1 \2", words).split()
+                lst.append(words)
     
-    return list
+    return lst
+
+
 
 
 def labelmaker(list):
@@ -41,7 +44,8 @@ Dictionary_of_instruction = {
     },
     "B-type": {
         "beq": {"func3": "000", "opcode": "1100011"},
-        "bne": {"func3": "001", "opcode": "1100011"}
+        "bne": {"func3": "001", "opcode": "1100011"},
+        "blt": {"func3": "100", "opcode": "1100011"}
     },
     "J-type": {
         "jal": {"opcode": "1101111"}
@@ -236,33 +240,42 @@ def instructionnameerror(list):
 
         if strippedstring in Dictionary_of_instruction["R-type"]:
             if line[1] not in Register_dictionary or line[2] not in Register_dictionary or line[3] not in Register_dictionary:
-                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
                 return string
             else:
                 continue
         elif strippedstring in Dictionary_of_instruction["I-type"]:
-            if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
-                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
-                return string
+            if strippedstring == "lw":
+                    if line[1] not in Register_dictionary or line[3] not in Register_dictionary:
+                        string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+                        return string
+                    else:
+                        continue
+                    
             else:
-                continue
+                    if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
+                        string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+                        return string
+                    else:
+                        continue
+
 
 
         elif strippedstring in Dictionary_of_instruction["S-type"]:
-            if line[1] not in Register_dictionary or line[3] not in Register_dictionary:
-                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+            if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
+                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
                 return string
             else:
                 continue
         elif strippedstring in Dictionary_of_instruction["B-type"]:
             if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
-                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
                 return string
             else:
                 continue
         elif strippedstring in Dictionary_of_instruction["J-type"]:
             if line[1] not in Register_dictionary:
-                string = "Error: Register Name not in Register Dictionary\nError Location: Line number " + str(list.index(line)+1)
+                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
                 return string
             else:
                 continue
@@ -270,14 +283,9 @@ def instructionnameerror(list):
         elif ":" in strippedstring:
             continue
         else:
-            string = "Error: Instruction Name not found in Instruction Set\nError Location: Line number " + str(list.index(line)+1)
+            string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
             return string
     return 0
-
-
-
-
-
 
 file_path = "Ex_test_3.txt"
 list = readfile(file_path)
