@@ -1,4 +1,5 @@
 import re
+import sys
 
 def readfile(file_path):
     lst = []
@@ -10,6 +11,12 @@ def readfile(file_path):
                 lst.append(words)
     
     return lst
+
+def outputfile(file_path,list):
+    with open(file_path, "w") as file:
+        for line in list:
+            file.write(line.strip() + "\n")
+    return
 
 
 
@@ -240,21 +247,21 @@ def instructionnameerror(list):
 
         if strippedstring in Dictionary_of_instruction["R-type"]:
             if line[1] not in Register_dictionary or line[2] not in Register_dictionary or line[3] not in Register_dictionary:
-                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+                string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number "+ str(list.index(line)+1)
                 return string
             else:
                 continue
         elif strippedstring in Dictionary_of_instruction["I-type"]:
             if strippedstring == "lw":
                     if line[1] not in Register_dictionary or line[3] not in Register_dictionary:
-                        string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+                        string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number " + str(list.index(line)+1)
                         return string
                     else:
                         continue
                     
             else:
                     if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
-                        string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+                        string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number " + str(list.index(line)+1)
                         return string
                     else:
                         continue
@@ -262,20 +269,20 @@ def instructionnameerror(list):
 
 
         elif strippedstring in Dictionary_of_instruction["S-type"]:
-            if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
-                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+            if line[1] not in Register_dictionary or line[3] not in Register_dictionary:
+                string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number " + str(list.index(line)+1)
                 return string
             else:
                 continue
         elif strippedstring in Dictionary_of_instruction["B-type"]:
             if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
-                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+                string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number "+ str(list.index(line)+1)
                 return string
             else:
                 continue
         elif strippedstring in Dictionary_of_instruction["J-type"]:
             if line[1] not in Register_dictionary:
-                string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+                string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number " + str(list.index(line)+1)
                 return string
             else:
                 continue
@@ -283,24 +290,26 @@ def instructionnameerror(list):
         elif ":" in strippedstring:
             continue
         else:
-            string = "Error: Incorrect Paramters Given(Check register name or number of paramters given)\nError Location: Line number " + str(list.index(line)+1)
+            string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number " + str(list.index(line)+1)
             return string
     return 0
 
-file_path = "Ex_test_3.txt"
+if len(sys.argv) != 3:
+    print("Usage: python Assembler.py <input_file> <output_file>")
+    sys.exit(1)
+
+file_path = sys.argv[1] 
+outputfilepath = sys.argv[2]   
+
 list = readfile(file_path)
 labels = labelmaker(list)
-print(list)
 list = labelprocessor(list)
-
-print(list)
-print(labels)
 
 
 error_message = instructionnameerror(list)
-
+answer = []
 if error_message != 0:
-    print(error_message)
+    answer.append(error_message)
 else:
     
     halt_error_message = virtualhaultcheck(list)
@@ -308,7 +317,10 @@ else:
     if halt_error_message == 0:
         pc = 0
         for line in list:
-            print(type_recognition(line, pc))
+            answer.append(type_recognition(line, pc))
             pc += 1
     else:
-        print(halt_error_message, len(list))
+        answer.append(halt_error_message, len(list))
+
+
+outputfile(outputfilepath,answer)
