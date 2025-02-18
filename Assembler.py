@@ -109,8 +109,6 @@ def decimaltobinaryforb(number):
     else:
         binary = format(number, "013b")
     return binary
-
-
 def type_recognition(line,pc):
     strippedstring = ""
     for ch in line[0]:
@@ -181,24 +179,16 @@ def binary_s(line):
 def binary_b(line,pc):
     if (line[3]+":") in labels:
         target_pc = labels[(line[3]+":")]
-        print("traget",target_pc)
         current_pc = pc
-        print("current",current_pc)
 
-        offset = 2 * (target_pc - current_pc)
-        line[3] = offset
-        print(line[3])
+        line[3] = target_pc - (current_pc +1)
     string = ""
     imm = decimaltobinaryforb(line[3])
-    print(imm)
-
-
-    string = string + imm[0] 
-    string = string  + imm[2:8]
+    string = string + imm[0] + imm[2:8]
     string = string + Register_dictionary[line[2]]
     string = string + Register_dictionary[line[1]]
     string = string + Dictionary_of_instruction["B-type"][line[0]]["func3"]
-    string = string + imm[9:] + imm[1]
+    string = string + imm[8:12] + imm[1]
     string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
     return string
 
@@ -216,7 +206,7 @@ def binary_j(line,pc):
         target_pc = labels[(line[2]+":")]
         current_pc = pc
 
-        line[2] = target_pc - ( current_pc+1)
+        line[2] = target_pc - ( current_pc +1)
     string = ""
     
     imm = decimaltobinaryforj(line[2])
@@ -304,14 +294,16 @@ def instructionnameerror(list):
             return string
     return 0
 
+if len(sys.argv) != 3:
+    print("Usage: python Assembler.py <input_file> <output_file>")
+    sys.exit(1)
 
+file_path = sys.argv[1] 
+outputfilepath = sys.argv[2]   
 
-file_path = "Ex_test_6.txt"
 list = readfile(file_path)
 labels = labelmaker(list)
 list = labelprocessor(list)
-print(list)
-print(labels)
 
 
 error_message = instructionnameerror(list)
@@ -331,5 +323,4 @@ else:
         answer.append(halt_error_message, len(list))
 
 
-for line in answer:
-    print(line)
+outputfile(outputfilepath,answer)
