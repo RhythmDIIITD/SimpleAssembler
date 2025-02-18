@@ -177,20 +177,31 @@ def binary_s(line):
     return string
 
 def binary_b(line,pc):
+    string = ""
     if (line[3]+":") in labels:
         target_pc = labels[(line[3]+":")]
         current_pc = pc
 
-        line[3] = target_pc - (current_pc +1)
-    string = ""
-    imm = decimaltobinaryforb(line[3])
-    string = string + imm[0] + imm[2:8]
-    string = string + Register_dictionary[line[2]]
-    string = string + Register_dictionary[line[1]]
-    string = string + Dictionary_of_instruction["B-type"][line[0]]["func3"]
-    string = string + imm[8:12] + imm[1]
-    string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
-    return string
+        line[3] = 2*(target_pc - current_pc)
+        imm = decimaltobinaryforb(line[3])
+        print(imm)
+        string = string + imm[0] + imm[2:8]
+        string = string + Register_dictionary[line[2]]
+        string = string + Register_dictionary[line[1]]
+        string = string + Dictionary_of_instruction["B-type"][line[0]]["func3"]
+        string = string + imm[9:] + imm[1]
+        string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
+        return string
+    else:
+        imm = decimaltobinaryforb(line[3])
+        string = string + imm[0] + imm[2:8]
+        string = string + Register_dictionary[line[2]]
+        string = string + Register_dictionary[line[1]]
+        string = string + Dictionary_of_instruction["B-type"][line[0]]["func3"]
+        string = string + imm[8:12] + imm[1]
+        string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
+        return string
+
 
 def decimaltobinaryforj(number):
     number = int(number)
@@ -206,17 +217,30 @@ def binary_j(line,pc):
         target_pc = labels[(line[2]+":")]
         current_pc = pc
 
-        line[2] = target_pc - ( current_pc +1)
-    string = ""
-    
-    imm = decimaltobinaryforj(line[2])
-    string = string + imm[0] 
-    string = string + imm[10:20] 
-    string = string + imm[9]
-    string = string + imm[1:9]  
-    string = string + Register_dictionary[line[1]]
-    string = string + Dictionary_of_instruction["J-type"][line[0]]["opcode"]
-    return string
+        line[2] = 2*(target_pc - current_pc)
+        string = ""
+        imm = decimaltobinaryforj(line[2])
+        print(imm)
+
+        string = string + imm[10:] 
+        string = string + imm[9]
+        string = string + imm[1:8] + imm[8]
+        string = string + Register_dictionary[line[1]]
+        string = string + Dictionary_of_instruction["J-type"][line[0]]["opcode"]
+        return string
+
+    else:
+        string = ""
+        imm = decimaltobinaryforj(line[2])
+        print(imm)
+        string = string + imm[0] 
+        string = string + imm[10:20]
+        string = string + imm[9]
+        string = string + imm[1:9]
+        string = string + Register_dictionary[line[1]]
+        string = string + Dictionary_of_instruction["J-type"][line[0]]["opcode"]
+        return string
+
 
 
 def labelprocessor(list):
@@ -294,12 +318,14 @@ def instructionnameerror(list):
             return string
     return 0
 
+
 if len(sys.argv) != 3:
     print("Usage: python Assembler.py <input_file> <output_file>")
     sys.exit(1)
 
 file_path = sys.argv[1] 
 outputfilepath = sys.argv[2]   
+
 
 list = readfile(file_path)
 labels = labelmaker(list)
@@ -321,6 +347,5 @@ else:
             pc += 1
     else:
         answer.append(halt_error_message, len(list))
-
 
 outputfile(outputfilepath,answer)
