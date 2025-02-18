@@ -15,7 +15,10 @@ def readfile(file_path):
 def outputfile(file_path,list):
     with open(file_path, "w") as file:
         for line in list:
-            file.write(line.strip() + "\n")
+            if list.index(line) == len(list)-1:
+                file.write(line.strip())
+            else:
+                file.write(line.strip() + "\n")
     return
 
 
@@ -184,7 +187,6 @@ def binary_b(line,pc):
 
         line[3] = 2*(target_pc - current_pc)
         imm = decimaltobinaryforb(line[3])
-        print(imm)
         string = string + imm[0] + imm[2:8]
         string = string + Register_dictionary[line[2]]
         string = string + Register_dictionary[line[1]]
@@ -220,7 +222,7 @@ def binary_j(line,pc):
         line[2] = 2*(target_pc - current_pc)
         string = ""
         imm = decimaltobinaryforj(line[2])
-        print(imm)
+
 
         string = string + imm[10:] 
         string = string + imm[9]
@@ -232,7 +234,7 @@ def binary_j(line,pc):
     else:
         string = ""
         imm = decimaltobinaryforj(line[2])
-        print(imm)
+
         string = string + imm[0] 
         string = string + imm[10:20]
         string = string + imm[9]
