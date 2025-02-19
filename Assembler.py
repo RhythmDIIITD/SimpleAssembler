@@ -108,6 +108,14 @@ def decimaltobinary(number):
 def decimaltobinaryforb(number):
     number = int(number)
     if number<0:
+        binary = format((1<<12)+number,"012b")
+    else:
+        binary = format(number, "012b")
+    return binary
+
+def decimaltobinaryforbb(number):
+    number = int(number)
+    if number<0:
         binary = format((1<<13)+number,"013b")
     else:
         binary = format(number, "013b")
@@ -191,19 +199,29 @@ def binary_b(line,pc):
         string = string + Register_dictionary[line[2]]
         string = string + Register_dictionary[line[1]]
         string = string + Dictionary_of_instruction["B-type"][line[0]]["func3"]
-        string = string + imm[9:] + imm[1]
+        string = string + imm[8:] + imm[1]
         string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
         return string
     else:
+        line[3] = int(line[3])//2
         imm = decimaltobinaryforb(line[3])
+        print(imm)
         string = string + imm[0] + imm[2:8]
         string = string + Register_dictionary[line[2]]
         string = string + Register_dictionary[line[1]]
         string = string + Dictionary_of_instruction["B-type"][line[0]]["func3"]
-        string = string + imm[8:12] + imm[1]
+        string = string + imm[8:] + imm[1]
         string = string + Dictionary_of_instruction["B-type"][line[0]]["opcode"]
         return string
 
+
+def decimaltobinaryforjj(number):
+    number = int(number)
+    if number<0:
+        binary = format((1<<20)+number,"020b")
+    else:
+        binary = format(number, "020b")
+    return binary
 
 def decimaltobinaryforj(number):
     number = int(number)
@@ -220,10 +238,11 @@ def binary_j(line,pc):
         current_pc = pc
 
         line[2] = 2*(target_pc - current_pc)
+        print(line[2])
         string = ""
-        imm = decimaltobinaryforj(line[2])
-
-
+        imm = decimaltobinaryforjj(line[2])
+        print(imm)
+        string = string + imm[0]
         string = string + imm[10:] 
         string = string + imm[9]
         string = string + imm[1:8] + imm[8]
@@ -234,6 +253,7 @@ def binary_j(line,pc):
     else:
         string = ""
         imm = decimaltobinaryforj(line[2])
+        print(imm)
 
         string = string + imm[0] 
         string = string + imm[10:20]
