@@ -42,7 +42,8 @@ Dictionary_of_instruction = {
         "slt": {"func7": "0000000", "func3": "010", "opcode": "0110011"},
         "srl": {"func7": "0000000", "func3": "101", "opcode": "0110011"},
         "or": {"func7": "0000000", "func3": "110", "opcode": "0110011"},
-        "and": {"func7": "0000000", "func3": "111", "opcode": "0110011"}
+        "and": {"func7": "0000000", "func3": "111", "opcode": "0110011"},
+        "mul": {"func7": "0000001", "func3": "000", "opcode": "0110011"},
     },
     "I-type": {
         "addi": {"func3": "000", "opcode": "0010011"},
