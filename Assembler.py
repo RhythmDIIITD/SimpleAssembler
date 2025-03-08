@@ -72,8 +72,13 @@ Dictionary_of_instruction = {
     #BONUS
     "Bonus-Type": {
         "rst": {"opcode": "0000000", "func3": "001", "func7": "0000000"},
-        "halt": {"opcode": "0000000", "func3": "010", "func7": "0000000"},
+        "halt": {"opcode": "0000000", "func3": "010", "func7": "0000000"}
+    },
+
+    "Reverse-Type": {
+        "rvrs": {"opcode": "0000000", "func3": "011", "func7": "0000000"}
     }
+
     #BONUS
     #BONUS
     #BONUS
@@ -161,6 +166,9 @@ def type_recognition(line,pc):
     #BONUS
     elif strippedstring in Dictionary_of_instruction["Bonus-Type"]:
         return binary_bonus(line)
+    
+    elif strippedstring in Dictionary_of_instruction["Reverse-Type"]:
+        return binary_reversal(line)
     #BONUS
     #BONUS
     #BONUS
@@ -195,6 +203,17 @@ def binary_bonus(line):
     string = string + "00000"
     string = string + Dictionary_of_instruction["Bonus-Type"][line[0]]["opcode"]
     return string
+
+def binary_reversal(line):
+    string = ""
+    string = string + Dictionary_of_instruction["Reverse-Type"][line[0]]["func7"]
+    string = string  + "00000"
+    string = string + Register_dictionary[line[2]]
+    string = string + Dictionary_of_instruction["Reverse-Type"][line[0]]["func3"]
+    string = string + Register_dictionary[line[1]]
+    string = string + Dictionary_of_instruction["Reverse-Type"][line[0]]["opcode"]
+    return string
+
 #BONUS
 #BONUS
 #BONUS
@@ -367,6 +386,12 @@ def instructionnameerror(list):
         #BONUS
         elif strippedstring in Dictionary_of_instruction["Bonus-Type"]:
             continue
+        elif strippedstring in Dictionary_of_instruction["Reverse-Type"]:
+            if line[1] not in Register_dictionary or line[2] not in Register_dictionary:
+                string = "Error: Incorrect Paramters Given(Check register name or position again)\nError Location: Line number "+ str(list.index(line)+1)
+                return string
+            else:
+                continue
         #BONUS
         #BONUS
         #BONUS
