@@ -229,7 +229,7 @@ def binary_i_normal(line):
 
 def binary_i_weird(line):
     string = ""
-    string = string + decimaltobinary(line[3])
+    string = string + decimaltobinary(line[3])[-12:]
     string = string + Register_dictionary[line[2]]
     string = string + Dictionary_of_instruction["I-type"][line[0]]["func3"]
     string = string + Register_dictionary[line[1]]
