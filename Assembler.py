@@ -43,7 +43,13 @@ Dictionary_of_instruction = {
         "srl": {"func7": "0000000", "func3": "101", "opcode": "0110011"},
         "or": {"func7": "0000000", "func3": "110", "opcode": "0110011"},
         "and": {"func7": "0000000", "func3": "111", "opcode": "0110011"},
+        #BONUS
+        #BONUS
+        #BONUS
         "mul": {"func7": "0000001", "func3": "000", "opcode": "0110011"},
+        #BONUS
+        #BONUS
+        #BONUS
     },
     "I-type": {
         "addi": {"func3": "000", "opcode": "0010011"},
@@ -61,9 +67,16 @@ Dictionary_of_instruction = {
     "J-type": {
         "jal": {"opcode": "1101111"}
     },
+    #BONUS
+    #BONUS
+    #BONUS
     "Bonus-Type": {
         "rst": {"opcode": "0000000", "func3": "001", "func7": "0000000"},
+        "halt": {"opcode": "0000000", "func3": "010", "func7": "0000000"},
     }
+    #BONUS
+    #BONUS
+    #BONUS
 }
 
 Register_dictionary = {
@@ -143,8 +156,14 @@ def type_recognition(line,pc):
         return binary_b(line, pc)
     elif strippedstring in Dictionary_of_instruction["J-type"]:
         return binary_j(line, pc)
+    #BONUS
+    #BONUS
+    #BONUS
     elif strippedstring in Dictionary_of_instruction["Bonus-Type"]:
         return binary_bonus(line)
+    #BONUS
+    #BONUS
+    #BONUS
     elif ":" in strippedstring:
         return "label"
     else:
@@ -164,6 +183,9 @@ def binary_r(line):
     string = string + Dictionary_of_instruction["R-type"][line[0]]["opcode"]
     return string
 
+#BONUS
+#BONUS
+#BONUS
 def binary_bonus(line):
     string = ""
     string = string + Dictionary_of_instruction["Bonus-Type"][line[0]]["func7"]
@@ -173,6 +195,9 @@ def binary_bonus(line):
     string = string + "00000"
     string = string + Dictionary_of_instruction["Bonus-Type"][line[0]]["opcode"]
     return string
+#BONUS
+#BONUS
+#BONUS
 
 def binary_i_normal(line):
     string = ""
@@ -337,9 +362,14 @@ def instructionnameerror(list):
                 return string
             else:
                 continue
+        #BONUS
+        #BONUS
+        #BONUS
         elif strippedstring in Dictionary_of_instruction["Bonus-Type"]:
             continue
-
+        #BONUS
+        #BONUS
+        #BONUS
         elif ":" in strippedstring:
             continue
         else:

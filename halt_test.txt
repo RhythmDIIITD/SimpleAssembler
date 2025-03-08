@@ -1,0 +1,7 @@
+addi x5,x0,5
+addi x6,x0,5
+add x2,x5,x6
+halt
+add x1,x2,x0
+addi x2,x0,2
+beq zero,zero,0
