@@ -60,6 +60,9 @@ Dictionary_of_instruction = {
     },
     "J-type": {
         "jal": {"opcode": "1101111"}
+    },
+    "Bonus-Type": {
+        "rst": {"opcode": "0000000", "func3": "001", "func7": "0000000"},
     }
 }
 
@@ -140,6 +143,8 @@ def type_recognition(line,pc):
         return binary_b(line, pc)
     elif strippedstring in Dictionary_of_instruction["J-type"]:
         return binary_j(line, pc)
+    elif strippedstring in Dictionary_of_instruction["Bonus-Type"]:
+        return binary_bonus(line)
     elif ":" in strippedstring:
         return "label"
     else:
@@ -157,6 +162,16 @@ def binary_r(line):
     string = string + Dictionary_of_instruction["R-type"][line[0]]["func3"]
     string = string + Register_dictionary[line[1]]
     string = string + Dictionary_of_instruction["R-type"][line[0]]["opcode"]
+    return string
+
+def binary_bonus(line):
+    string = ""
+    string = string + Dictionary_of_instruction["Bonus-Type"][line[0]]["func7"]
+    string = string  + "00000"
+    string = string + "00000"
+    string = string + Dictionary_of_instruction["Bonus-Type"][line[0]]["func3"]
+    string = string + "00000"
+    string = string + Dictionary_of_instruction["Bonus-Type"][line[0]]["opcode"]
     return string
 
 def binary_i_normal(line):
@@ -322,6 +337,8 @@ def instructionnameerror(list):
                 return string
             else:
                 continue
+        elif strippedstring in Dictionary_of_instruction["Bonus-Type"]:
+            continue
 
         elif ":" in strippedstring:
             continue
