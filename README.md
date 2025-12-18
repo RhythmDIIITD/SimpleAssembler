@@ -18,5 +18,4 @@ This assembler reads an assembly program as an input text file and generates the
 - Generates a binary output file when code is error-free.
 - Provides **error notifications** (stdout) with line numbers for any invalid instructions.
 - Includes **10 test cases** with expected outputs for validation.
-## Project Structure
 
